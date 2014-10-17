@@ -49,12 +49,6 @@ function init() {
   window.addEventListener('deviceorientation', setOrientationControls, true);
 
 
-  var light = new THREE.HemisphereLight(0x777777, 0x000000, 0.6);
-  scene.add(light);
-
-  var pointLight = new THREE.PointLight( 0xFFFFFF );
-  pointLight.position.z = 1000;
-  scene.add(pointLight);
 
   var texture = THREE.ImageUtils.loadTexture(
    'textures/patterns/checker.png'
@@ -78,6 +72,13 @@ function init() {
   mesh.rotation.x = -Math.PI / 2;
   scene.add(mesh);
 
+  var light = new THREE.HemisphereLight(0x777777, 0x000000, 0.6);
+  scene.add(light);
+
+  var pointLight = new THREE.PointLight( 0xFFFFFF );
+  pointLight.position.z = 1000;
+  scene.add(pointLight);
+
   loadXWing(scene);
 
   window.addEventListener('resize', resize, false);
@@ -94,12 +95,24 @@ function loadXWing(scene){
       var geometry = event.content;
       var mesh = new THREE.Mesh( geometry, material );
 
-      mesh.position.set( 0, - 0.37, - 0.6 );
+      geometry.computeFaceNormals();
+      geometry.normalsNeedUpdate = true;
+
+      geometry.computeFaceNormals();
+      geometry.computeVertexNormals();
+
+      mesh.geometry.dynamic = true
+      mesh.geometry.__dirtyVertices = true;
+      mesh.geometry.__dirtyNormals = true;
+
+      mesh.flipSided = true;
+      mesh.position.set( 0, - 0.37, 6 );
       mesh.rotation.set( - Math.PI / 2, 0, 0 );
       mesh.scale.set( 2, 2, 2 );
 
       mesh.castShadow = true;
       mesh.receiveShadow = true;
+
 
       scene.add( mesh );
 
@@ -107,8 +120,8 @@ function loadXWing(scene){
           if(frame.hands.length) {
             var hand = frame.hands[0];
             mesh.position.y = (hand.palmPosition[1]-300)/5;
-            mesh.position.x = -(hand.palmPosition[0]-300)/5;
-            mesh.position.z = -(hand.palmPosition[2]-300)/5;
+            //mesh.position.x = -(hand.palmPosition[0]-300)/5;
+            //mesh.position.z = -(hand.palmPosition[2]-300)/5;
             var scale = 1-hand.grabStrength;
             mesh.scale.set(scale,scale,scale);
           }
